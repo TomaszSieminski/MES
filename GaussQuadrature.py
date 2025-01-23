@@ -23,6 +23,23 @@ class GaussQuadrature:
                               [0, -point], [0, 0], [0, point],
                               [point, -point], [point, 0], [point, point]]
             self.weights = [5 / 9, 8 / 9, 5 / 9]
+        elif config.pc_mode == 16:
+            point1 = -0.8611363116
+            point2 = -0.3399810436
+            point3 = 0.3399810436
+            point4 = 0.8611363116
+
+            self.pc_params = [[point1, point1], [point1, point2], [point1, point3], [point1, point4],
+                              [point2, point1], [point2, point2], [point2, point3], [point2, point4],
+                              [point3, point1], [point3, point2], [point3, point3], [point3, point4],
+                              [point4, point1], [point4, point2], [point4, point3], [point4, point4]]
+
+            weight1 = 0.3478548451
+            weight2 = 0.6521451549
+            self.weights = [weight1, weight2, weight2, weight1,
+                            weight2, weight2, weight2, weight2,
+                            weight2, weight2, weight2, weight2,
+                            weight1, weight2, weight2, weight1]
         else:
             self.pc_params = []
 

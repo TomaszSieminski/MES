@@ -28,8 +28,8 @@ class MatrixHbc:
 
                     for a in range(2):
                         global_a = edge[a]
-                        self.P_local[global_a] += self.alpha * self.tot * N[a] * edge_length * weight * 0.25
+                        self.P_local[global_a] += self.alpha * self.tot * N[a] * edge_length * weight * 0.5 * 0.5
 
                         for b in range(2):
                             global_b = edge[b]
-                            self.Hbc[global_a][global_b] += self.alpha * N[a] * N[b] * edge_length * weight * 0.25
+                            self.Hbc[global_a][global_b] += self.alpha * N[a] * N[b] * edge_length * weight * 0.5 * 0.5

@@ -19,12 +19,13 @@ class Element:
         self.vertices = vertices
         self.jacobian = []
         self.Hbc = []
+        self.P = []
 
     def calculate_hbc(self, nodes, alpha, tot):
         element_nodes = [nodes[node_id - 1] for node_id in self.vertices]
         matrix_hbc = MatrixHbc(element_nodes, alpha, tot)
         self.Hbc = matrix_hbc.Hbc
-        self.P_local = matrix_hbc.P_local
+        self.P = matrix_hbc.P_local
 
     def display_hbc_matrix(self):
         print(f"Element {self.id}:")
@@ -32,7 +33,7 @@ class Element:
         for row in self.Hbc:
             print("  ", "  ".join(f"{value:.4f}" for value in row))
         print("P Vector:")
-        print("  ", "  ".join(f"{value:.4f}" for value in self.P_local))
+        print("  ", "  ".join(f"{value:.4f}" for value in self.P))
         print()
 
     def __str__(self):
@@ -61,7 +62,7 @@ class Grid:
             if node.id == id:
                 return node
 
-    def calc_jacobian_and_H_for_elem(self):
+    def calc_jacobian_and_h_for_elem(self):
         for element in self.elements:
             nodes = []
             for vert in element.vertices:
