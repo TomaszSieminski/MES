@@ -34,7 +34,7 @@ class Element:
         element_nodes = [nodes[node_id - 1] for node_id in self.vertices]
         matrix_hbc = MatrixHbc(element_nodes, alpha, tot)
         self.Hbc = matrix_hbc.Hbc
-        self.P = matrix_hbc.P_local
+        self.P = matrix_hbc.P
 
     def calculate_c(self, nodes, density, specific_heat):
         element_nodes = [nodes[node_id - 1] for node_id in self.vertices]
@@ -43,7 +43,12 @@ class Element:
 
     def display_jacobian_and_h(self):
         print("Element", self.id)
-        self.jacobian.__str__()
+        #self.jacobian.__str__()
+
+    def display_h_matrix(self):
+        print(f"Element {self.id}:")
+        print("H Matrix:")
+        print(tabulate(self.H, tablefmt="plain", floatfmt=".4f"))
 
     def display_hbc_matrix(self):
         print(f"Element {self.id}:")
@@ -72,19 +77,6 @@ class Grid:
         self.globalData = globalData
 
 
-    def __str__(self):
-        return (f"""
-            nN = {self.nN}
-            nE = {self.nE}
-            elements = {self.elements}
-            nodes = {self.nodes}
-        """)
-
-    def get_node_by_id(self, id):
-        for node in self.nodes:
-            if node.id == id:
-                return node
-
     def calc_jacobian_and_h_for_elem(self):
         for element in self.elements:
             nodes = []
@@ -101,10 +93,15 @@ class Grid:
         for element in self.elements:
             element.calculate_c(self.nodes, density, specific_heat)
 
-    def display_jacobian_and_h_matrices(self):
-        print("\nLocal Jacobian & H matrices for Each Element:")
+    def display_jacobian(self):
+        print("\nLocal Jacobian for Each Element:")
         for element in self.elements:
-            element.display_jacobian_and_h()
+            element.display_jacobian()
+
+    def display_h_matrices(self):
+        print("\nLocal H Matrices for Each Element:")
+        for element in self.elements:
+            element.display_h_matrix()
 
     def display_hbc_matrices(self):
         print("\nLocal Hbc Matrices and P Vectors for Each Element:")
@@ -115,3 +112,16 @@ class Grid:
         print("\nLocal C Matrices for Each Element:")
         for element in self.elements:
             element.display_c_matrix()
+
+    def __str__(self):
+        return (f"""
+            nN = {self.nN}
+            nE = {self.nE}
+            elements = {self.elements}
+            nodes = {self.nodes}
+        """)
+
+    def get_node_by_id(self, id):
+        for node in self.nodes:
+            if node.id == id:
+                return node

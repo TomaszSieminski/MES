@@ -31,6 +31,7 @@ class GlobalMatrix:
                     global_i = nodes[i] - 1
                     global_j = nodes[j] - 1
                     self.Hbc[global_i][global_j] += local_matrixHbc[i][j]
+        return self.Hbc
 
     def assemble_p(self, grid):
         for element in grid.elements:
@@ -40,6 +41,7 @@ class GlobalMatrix:
             for i in range(4):
                 global_i = nodes[i] - 1
                 self.P[global_i] += local_P[i]
+        return self.P
 
     def assemble_c(self, grid):
         for element in grid.elements:
@@ -51,6 +53,7 @@ class GlobalMatrix:
                     global_i = nodes[i] - 1
                     global_j = nodes[j] - 1
                     self.C[global_i, global_j] += local_C[i][j]
+        return self.C
 
     def display_h(self):
         print("Global H Matrix:")

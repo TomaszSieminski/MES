@@ -4,7 +4,7 @@ from ShapeFunctionDerivatives import ShapeFunctionDerivatives
 from numpy.linalg import det, inv
 
 class Jacobian:
-    def __init__(self, nodes, k):
+    def __init__(self, nodes):
         self.j = []
         self.j1 = []
         self.detJ = []

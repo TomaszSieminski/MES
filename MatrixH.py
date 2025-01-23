@@ -14,7 +14,6 @@ class MatrixH:
         dN_dX, dN_dY = self.jacobian.dN_dX, self.jacobian.dN_dY
         detJ = self.jacobian.detJ
 
-        # Compute Hpc and H
         for i in range(len(dN_dX)):
             hpc = k * ((dN_dX[i] * np.array(dN_dX[i])[np.newaxis].T) +
                        (dN_dY[i] * np.array(dN_dY[i])[np.newaxis].T)) * detJ[i]
