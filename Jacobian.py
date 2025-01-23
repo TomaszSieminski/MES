@@ -1,24 +1,17 @@
 import numpy as np
-from numpy.linalg import det, inv
-
-from GaussQuadrature import GaussQuadrature
+from GaussQuadrature import gauss
 from ShapeFunctionDerivatives import ShapeFunctionDerivatives
+from numpy.linalg import det, inv
 
 class Jacobian:
     def __init__(self, nodes, k):
         self.j = []
         self.j1 = []
         self.detJ = []
-
         self.dN_dX = []
         self.dN_dY = []
 
-        self.Hpc = []
-        self.H = []
-
-        gauss = GaussQuadrature()
-        pc_params = gauss.get_pc_params()
-        weights = gauss.get_weights()
+        pc_params = gauss.pc_params
 
         dN_dKsi = [[ShapeFunctionDerivatives.dN1_dKsi(param[1]),
                     ShapeFunctionDerivatives.dN2_dKsi(param[1]),
@@ -33,8 +26,8 @@ class Jacobian:
         for i in range(len(dN_dKsi)):
             self.j.append([
                 [
-                sum(dN_dKsi[i][j] * nodes[j].x for j in range(len(dN_dKsi[0]))),
-                sum(dN_dKsi[i][j] * nodes[j].y for j in range(len(dN_dKsi[0])))
+                    sum(dN_dKsi[i][j] * nodes[j].x for j in range(len(dN_dKsi[0]))),
+                    sum(dN_dKsi[i][j] * nodes[j].y for j in range(len(dN_dKsi[0])))
                 ],
                 [
                     sum(dN_dEta[i][j] * nodes[j].x for j in range(len(dN_dEta[0]))),
@@ -48,7 +41,7 @@ class Jacobian:
         for row in self.j:
             self.j1.append(inv(row))
 
-        #dN_dX i dN_dY
+        # Compute dN_dX and dN_dY
         for i in range(len(dN_dKsi)):
             temp1 = []
             temp2 = []
@@ -59,12 +52,6 @@ class Jacobian:
 
             self.dN_dX.append(temp1)
             self.dN_dY.append(temp2)
-
-
-        for i in range(len(self.dN_dX)):
-            self.Hpc.append(k * ((self.dN_dX[i] * np.array(self.dN_dX[i])[np.newaxis].T) + (self.dN_dY[i] * np.array(self.dN_dY[i])[np.newaxis].T)) * self.detJ[i])
-
-        self.H = sum(h * w for h, w in zip(self.Hpc, weights))
 
 
 
@@ -95,9 +82,6 @@ class Jacobian:
         for i in range(len(self.dN_dY)):
             print("dN_dY(" + str(i + 1) + "):", self.dN_dY[i])
 
-        print("H:")
-        for row in self.H:
-            print(row)
 
         print("\n")
 

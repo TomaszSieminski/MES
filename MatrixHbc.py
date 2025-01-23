@@ -1,80 +1,35 @@
 import numpy as np
-import math
-from UniversalElement import UniversalElement
-from GaussQuadrature import GaussQuadrature
-from config import pc_mode
-from tabulate import tabulate
+from GaussQuadrature import gauss
 
 class MatrixHbc:
-    def __init__(self, global_data, grid, element):
-        self.global_data = global_data
-        self.grid = grid
-        self.element = element
-        self.num_points = int(math.sqrt(pc_mode))
+    def __init__(self, element_nodes, alpha, tot):
+        self.element_nodes = element_nodes
+        self.alpha = alpha
+        self.tot = tot
+        self.gauss_points = gauss.pc_params
+        self.gauss_weights = gauss.weights
         self.Hbc = np.zeros((4, 4))
-        self.P = np.zeros(4)
-        self.element_uni = UniversalElement()
+        self.P_local = np.zeros(4)
+        self.compute_hbc_and_p()
 
-        self.calculate_matrix_Hbc_and_vector_P()
+    def compute_hbc_and_p(self):
+        edges = [(0, 1), (1, 2), (2, 3), (3, 0)]
 
-    def get_Hbc(self):
-        return self.Hbc
+        for edge in edges:
+            node1 = self.element_nodes[edge[0]]
+            node2 = self.element_nodes[edge[1]]
 
-    def get_P(self):
-        return self.P
+            if node1.BC and node2.BC:
+                edge_length = np.sqrt((node2.x - node1.x)**2 + (node2.y - node1.y)**2)
 
-    def calculate_matrix_Hbc_and_vector_P(self):
-        weights = GaussQuadrature().get_weights()
-        alpha = self.global_data.alpha
+                for i, (ksi, eta) in enumerate(self.gauss_points):
+                    weight = self.gauss_weights[i]
+                    N = [0.5 * (1 - ksi), 0.5 * (1 + ksi)]
 
-        for edge in range(4):  # Iteracja po krawędziach
-            nodes = self.get_edge_nodes(edge)
+                    for a in range(2):
+                        global_a = edge[a]
+                        self.P_local[global_a] += self.alpha * self.tot * N[a] * edge_length * weight * 0.25
 
-            if nodes[0].BC == 0 and nodes[1].BC == 0:
-                continue
-
-            det_j = self.calculate_edge_length(nodes[0], nodes[1]) / 2.0
-
-            for i in range(self.num_points):
-                ksi, eta = self.element_uni.ksi_eta_values[i]
-                N = self.element_uni.get_surface_shape_functions(edge, ksi)
-
-                for j in range(4):
-                    for k in range(4):
-                        self.Hbc[j][k] += alpha * N[j] * N[k] * weights[i] * det_j
-
-                    tot = self.global_data.ambientTemp
-                    self.P[j] += alpha * N[j] * weights[i] * det_j * tot
-
-    def get_edge_nodes(self, edge):
-        node_ids = self.element.vertices
-        nodes = [None, None]
-
-        if edge == 0:  # bottom
-            nodes[0] = self.grid.get_node_by_id(node_ids[0])
-            nodes[1] = self.grid.get_node_by_id(node_ids[1])
-        elif edge == 1:  # right
-            nodes[0] = self.grid.get_node_by_id(node_ids[1])
-            nodes[1] = self.grid.get_node_by_id(node_ids[2])
-        elif edge == 2:  # top
-            nodes[0] = self.grid.get_node_by_id(node_ids[2])
-            nodes[1] = self.grid.get_node_by_id(node_ids[3])
-        elif edge == 3:  # left
-            nodes[0] = self.grid.get_node_by_id(node_ids[3])
-            nodes[1] = self.grid.get_node_by_id(node_ids[0])
-
-        return nodes
-
-    @staticmethod
-    def calculate_edge_length(n1, n2):
-        dx = n2.x - n1.x
-        dy = n2.y - n1.y
-        return np.sqrt(dx ** 2 + dy ** 2)
-
-    def print_vector_P(self):
-        print("Vector P:")
-        print(tabulate([self.P], tablefmt="plain", floatfmt=".5f"))
-
-    def print_Hbc(self):
-        print("Macierz Hbc:")
-        print(tabulate(self.Hbc, tablefmt="plain", floatfmt=".5f"))
+                        for b in range(2):
+                            global_b = edge[b]
+                            self.Hbc[global_a][global_b] += self.alpha * N[a] * N[b] * edge_length * weight * 0.25

@@ -6,6 +6,7 @@ class GaussQuadrature:
     def __init__(self):
         self.pc_params = []
         self.weights = []
+
         self.set_gauss_points()
 
     def set_gauss_points(self):
@@ -27,8 +28,5 @@ class GaussQuadrature:
 
         self.weights = (self.weights * (np.array(self.weights)[np.newaxis].T)).flatten()
 
-    def get_pc_params(self):
-        return self.pc_params
 
-    def get_weights(self):
-        return self.weights
+gauss = GaussQuadrature()

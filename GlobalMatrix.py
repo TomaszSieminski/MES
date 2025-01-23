@@ -7,7 +7,7 @@ class GlobalMatrix:
 
     def assemble(self, grid):
         for element in grid.elements:
-            local_matrix = element.jacobian.H
+            local_matrix = element.matrixH.H
             nodes = element.vertices
 
             for i in range(4):

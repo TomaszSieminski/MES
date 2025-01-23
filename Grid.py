@@ -1,4 +1,5 @@
 from Jacobian import Jacobian
+from MatrixH import MatrixH
 from MatrixHbc import MatrixHbc
 
 class Node:
@@ -16,8 +17,23 @@ class Element:
     def __init__(self, id, vertices):
         self.id = id
         self.vertices = vertices
-        self.jacobian = None
+        self.jacobian = []
         self.Hbc = []
+
+    def calculate_hbc(self, nodes, alpha, tot):
+        element_nodes = [nodes[node_id - 1] for node_id in self.vertices]
+        matrix_hbc = MatrixHbc(element_nodes, alpha, tot)
+        self.Hbc = matrix_hbc.Hbc
+        self.P_local = matrix_hbc.P_local
+
+    def display_hbc_matrix(self):
+        print(f"Element {self.id}:")
+        print("Hbc Matrix:")
+        for row in self.Hbc:
+            print("  ", "  ".join(f"{value:.4f}" for value in row))
+        print("P Vector:")
+        print("  ", "  ".join(f"{value:.4f}" for value in self.P_local))
+        print()
 
     def __str__(self):
         return str(self.id) + " (" + str(self.vertices) + ")"
@@ -45,7 +61,7 @@ class Grid:
             if node.id == id:
                 return node
 
-    def calc_jacobian_for_elem(self):
+    def calc_jacobian_and_H_for_elem(self):
         for element in self.elements:
             nodes = []
             for vert in element.vertices:
@@ -55,14 +71,14 @@ class Grid:
             #print("Element", element.id)
             #element.jacobian.__str__()
 
-    def calc_Hbc_for_elem(self):
-        for element in self.elements:
-            matrix_hbc = MatrixHbc(self.globalData, self, element)
-            element.Hbc = matrix_hbc.get_Hbc()
-            element.P = matrix_hbc.get_P()
+            element.matrixH = MatrixH(element.jacobian, self.globalData.conductivity)
 
-            print(f"Macierz Hbc dla elementu {element.id}:")
-            for row in element.Hbc:
-                print(row)
-            print(f"Wektor P dla elementu {element.id}:")
-            print(element.P)
+    def calc_hbc_for_elem(self, alpha, tot):
+        for element in self.elements:
+            element.calculate_hbc(self.nodes, alpha, tot)
+
+
+    def display_hbc_matrices(self):
+        print("\nLocal Hbc Matrices and P Vectors for Each Element:")
+        for element in self.elements:
+            element.display_hbc_matrix()
