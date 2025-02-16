@@ -23,6 +23,7 @@ class Jacobian:
                     ShapeFunctionDerivatives.dN3_dEta(param[0]),
                     ShapeFunctionDerivatives.dN4_dEta(param[0])] for param in pc_params]
 
+        # Macierz jakobianu dla każdego punktu całkowania
         for i in range(len(dN_dKsi)):
             self.j.append([
                 [
@@ -35,13 +36,14 @@ class Jacobian:
                 ]
             ])
 
+        # Wyznacznik po macierzach jakobianu
         for row in self.j:
             self.detJ.append(det(row))
 
+        # Macierz odwrotna dla macierzy jakobianu
         for row in self.j:
             self.j1.append(inv(row))
 
-        # Compute dN_dX and dN_dY
         for i in range(len(dN_dKsi)):
             temp1 = []
             temp2 = []
@@ -52,8 +54,6 @@ class Jacobian:
 
             self.dN_dX.append(temp1)
             self.dN_dY.append(temp2)
-
-
 
     def __str__(self):
         np.set_printoptions(precision=5, linewidth=120, suppress=True)
@@ -81,7 +81,6 @@ class Jacobian:
         print("dN_dY:")
         for i in range(len(self.dN_dY)):
             print("dN_dY(" + str(i + 1) + "):", self.dN_dY[i])
-
 
         print("\n")
 

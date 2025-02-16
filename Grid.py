@@ -14,7 +14,6 @@ class Node:
     def __str__(self):
         return str(self.id) + ", " + str(self.x) + ", " + str(self.y) + ", " + str(self.BC)
 
-
 class Element:
     def __init__(self, id, vertices):
         self.id = id
@@ -41,9 +40,9 @@ class Element:
         matrix_c = MatrixC(element_nodes, self.jacobian.detJ, density, specific_heat)
         self.C = matrix_c.C_local
 
-    def display_jacobian_and_h(self):
+    def display_jacobian(self):
         print("Element", self.id)
-        #self.jacobian.__str__()
+        self.jacobian.__str__()
 
     def display_h_matrix(self):
         print(f"Element {self.id}:")

@@ -6,8 +6,8 @@ class MatrixHbc:
         self.element_nodes = element_nodes
         self.alpha = alpha
         self.tot = tot
-        self.gauss_points = gauss.pc_params
-        self.gauss_weights = gauss.weights
+        self.gauss_points = gauss.pc_params_1d
+        self.gauss_weights = gauss.weights_1d
         self.Hbc = np.zeros((4, 4))
         self.P = np.zeros(4)
         self.compute_hbc_and_p()
@@ -24,11 +24,10 @@ class MatrixHbc:
                 detJ = edge_length * 0.5
 
                 for i in range(len(self.gauss_points)):
-                    ksi = self.gauss_points[i][0]
+                    ksi = self.gauss_points[i]
                     weight = self.gauss_weights[i]
 
                     N = [0.5 * (1 - ksi), 0.5 * (1 + ksi)]
-
 
                     for a in range(2):
                         global_a = edge[a]
